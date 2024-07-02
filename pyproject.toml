@@ -10,7 +10,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sompackage"
-version = "1.0.0"
+version = "1.0.1"
 authors = [
   { name="Stefano Tornelli", email="stefano.tornelli@outlook.com" },
 ]
