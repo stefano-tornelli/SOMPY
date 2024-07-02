@@ -9,6 +9,11 @@ setup(
     description="Self Organizing Maps Package",
     author="Vahid Moosavi and Sebastian Packmann",
     packages=find_packages(),
-    install_requires=['numpy >= 1.7', 'scipy >= 0.9',
-                      'scikit-learn >= 0.21', 'numexpr >= 2.5']
+    install_requires=[
+        "numpy >= 1.7",
+        "scipy >= 0.9",
+        "scikit-learn >= 0.21",
+        "numexpr >= 2.5",
+        "scikit-image >= 0.24.0",
+    ],
 )
