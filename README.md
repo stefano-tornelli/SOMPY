@@ -1,5 +1,22 @@
 SOMPY
 -----
+
+This repository was forked from the original repository at https://github.com/sevamoo/SOMPY to modify it in order to make the package installable via pip.
+
+Changes
+1. Changed package name to "sompackage" to avoid conflict with already existing packages on PyPI
+2. Refactored package replacing deprecated setup.py with pyproject.toml
+3. Updated dependencies to include scikit-image
+
+WIP:
+1. Upload package to PyPI
+
+All of the following is the original README file from the creator of the repo.
+
+-----
+
+## Original README
+
 A Python Library for Self Organizing Map (SOM)
 
 As much as possible, the structure of SOM is similar to `somtoolbox` in Matlab. It has the following functionalities:
@@ -42,7 +59,7 @@ There is no published paper about this library. However if possible, please cite
 @misc{moosavi2014sompy,
   title={SOMPY: A Python Library for Self Organizing Map (SOM)},
   author={Moosavi, V and Packmann, S and Vall{\'e}s, I},
-  note={GitHub.[Online]. Available: https://github. com/sevamoo/SOMPY},
+  note={GitHub.[Online]. Available: https://github.com/sevamoo/SOMPY},
   year={2014}
 }
 ```

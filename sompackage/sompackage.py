@@ -40,17 +40,19 @@ class LabelsError(Exception):
 class SOMFactory(object):
 
     @staticmethod
-    def build(data,
-              mapsize=None,
-              mask=None,
-              mapshape='planar',
-              lattice='rect',
-              normalization='var',
-              initialization='pca',
-              neighborhood='gaussian',
-              training='batch',
-              name='sompy',
-              component_names=None):
+    def build(
+        data,
+        mapsize=None,
+        mask=None,
+        mapshape="planar",
+        lattice="rect",
+        normalization="var",
+        initialization="pca",
+        neighborhood="gaussian",
+        training="batch",
+        name="sompy",
+        component_names=None,
+    ):
         """
         :param data: data to be clustered, represented as a matrix of n rows,
             as inputs and m cols as input features
@@ -89,24 +91,37 @@ class SOMFactory(object):
         else:
             normalizer = None
         neighborhood_calculator = NeighborhoodFactory.build(neighborhood)
-        return SOM(data, neighborhood_calculator, normalizer, mapsize, mask,
-                   mapshape, lattice, initialization, training, name, component_names)
+        return SOM(
+            data,
+            neighborhood_calculator,
+            normalizer,
+            mapsize,
+            mask,
+            mapshape,
+            lattice,
+            initialization,
+            training,
+            name,
+            component_names,
+        )
 
 
 class SOM(object):
 
-    def __init__(self,
-                 data,
-                 neighborhood,
-                 normalizer=None,
-                 mapsize=None,
-                 mask=None,
-                 mapshape='planar',
-                 lattice='rect',
-                 initialization='pca',
-                 training='batch',
-                 name='sompy',
-                 component_names=None):
+    def __init__(
+        self,
+        data,
+        neighborhood,
+        normalizer=None,
+        mapsize=None,
+        mask=None,
+        mapshape="planar",
+        lattice="rect",
+        initialization="pca",
+        training="batch",
+        name="sompy",
+        component_names=None,
+    ):
         """
         Self Organizing Map
 
@@ -139,7 +154,11 @@ class SOM(object):
         mapsize = self.calculate_map_size(lattice) if not mapsize else mapsize
         self.codebook = Codebook(mapsize, lattice)
         self.training = training
-        self._component_names = self.build_component_names() if component_names is None else [component_names]
+        self._component_names = (
+            self.build_component_names()
+            if component_names is None
+            else [component_names]
+        )
         self._distance_matrix = self.calculate_map_dist()
 
     @property
@@ -151,11 +170,13 @@ class SOM(object):
         if self._dim == len(compnames):
             self._component_names = np.asarray(compnames)[np.newaxis, :]
         else:
-            raise ComponentNamesError('Component names should have the same '
-                                      'size as the data dimension/features')
+            raise ComponentNamesError(
+                "Component names should have the same "
+                "size as the data dimension/features"
+            )
 
     def build_component_names(self):
-        cc = ['Variable-' + str(i+1) for i in range(0, self._dim)]
+        cc = ["Variable-" + str(i + 1) for i in range(0, self._dim)]
         return np.asarray(cc)[np.newaxis, :]
 
     @property
@@ -175,12 +196,12 @@ class SOM(object):
         elif labels.shape == (self._dlen,):
             label = labels[:, np.newaxis]
         else:
-            raise LabelsError('wrong label format')
+            raise LabelsError("wrong label format")
 
         self._dlabel = label
 
     def build_data_labels(self):
-        cc = ['dlabel-' + str(i) for i in range(0, self._dlen)]
+        cc = ["dlabel-" + str(i) for i in range(0, self._dlen)]
         return np.asarray(cc)[:, np.newaxis]
 
     def calculate_map_dist(self):
@@ -196,18 +217,20 @@ class SOM(object):
         return distance_matrix
 
     @timeit()
-    def train(self,
-              n_job=1,
-              shared_memory=False,
-              verbose='info',
-              train_rough_len=None,
-              train_rough_radiusin=None,
-              train_rough_radiusfin=None,
-              train_finetune_len=None,
-              train_finetune_radiusin=None,
-              train_finetune_radiusfin=None,
-              train_len_factor=1,
-              maxtrainlen=np.Inf):
+    def train(
+        self,
+        n_job=1,
+        shared_memory=False,
+        verbose="info",
+        train_rough_len=None,
+        train_rough_radiusin=None,
+        train_rough_radiusfin=None,
+        train_finetune_len=None,
+        train_finetune_radiusin=None,
+        train_finetune_radiusfin=None,
+        train_len_factor=1,
+        maxtrainlen=np.Inf,
+    ):
         """
         Trains the som
 
@@ -217,37 +240,54 @@ class SOM(object):
         :param train_len_factor: Factor that multiply default training lenghts (similar to "training" parameter in the matlab version). (lbugnon)
         """
         logging.root.setLevel(
-            getattr(logging, verbose.upper()) if verbose else logging.ERROR)
+            getattr(logging, verbose.upper()) if verbose else logging.ERROR
+        )
 
         logging.info(" Training...")
-        logging.debug((
-            "--------------------------------------------------------------\n"
-            " details: \n"
-            "      > data len is {data_len} and data dimension is {data_dim}\n"
-            "      > map size is {mpsz0},{mpsz1}\n"
-            "      > array size in log10 scale is {array_size}\n"
-            "      > number of jobs in parallel: {n_job}\n"
-            " -------------------------------------------------------------\n")
-            .format(data_len=self._dlen,
-                    data_dim=self._dim,
-                    mpsz0=self.codebook.mapsize[0],
-                    mpsz1=self.codebook.mapsize[1],
-                    array_size=np.log10(
-                        self._dlen * self.codebook.nnodes * self._dim),
-                    n_job=n_job))
+        logging.debug(
+            (
+                "--------------------------------------------------------------\n"
+                " details: \n"
+                "      > data len is {data_len} and data dimension is {data_dim}\n"
+                "      > map size is {mpsz0},{mpsz1}\n"
+                "      > array size in log10 scale is {array_size}\n"
+                "      > number of jobs in parallel: {n_job}\n"
+                " -------------------------------------------------------------\n"
+            ).format(
+                data_len=self._dlen,
+                data_dim=self._dim,
+                mpsz0=self.codebook.mapsize[0],
+                mpsz1=self.codebook.mapsize[1],
+                array_size=np.log10(self._dlen * self.codebook.nnodes * self._dim),
+                n_job=n_job,
+            )
+        )
 
-        if self.initialization == 'random':
+        if self.initialization == "random":
             self.codebook.random_initialization(self._data)
 
-        elif self.initialization == 'pca':
+        elif self.initialization == "pca":
             self.codebook.pca_linear_initialization(self._data)
 
-        self.rough_train(njob=n_job, shared_memory=shared_memory, trainlen=train_rough_len,
-                         radiusin=train_rough_radiusin, radiusfin=train_rough_radiusfin,trainlen_factor=train_len_factor,maxtrainlen=maxtrainlen)
-        self.finetune_train(njob=n_job, shared_memory=shared_memory, trainlen=train_finetune_len,
-                            radiusin=train_finetune_radiusin, radiusfin=train_finetune_radiusfin,trainlen_factor=train_len_factor,maxtrainlen=maxtrainlen)
-        logging.debug(
-            " --------------------------------------------------------------")
+        self.rough_train(
+            njob=n_job,
+            shared_memory=shared_memory,
+            trainlen=train_rough_len,
+            radiusin=train_rough_radiusin,
+            radiusfin=train_rough_radiusfin,
+            trainlen_factor=train_len_factor,
+            maxtrainlen=maxtrainlen,
+        )
+        self.finetune_train(
+            njob=n_job,
+            shared_memory=shared_memory,
+            trainlen=train_finetune_len,
+            radiusin=train_finetune_radiusin,
+            radiusfin=train_finetune_radiusfin,
+            trainlen_factor=train_len_factor,
+            maxtrainlen=maxtrainlen,
+        )
+        logging.debug(" --------------------------------------------------------------")
         logging.info(" Final quantization error: %f" % np.mean(self._bmu[1]))
 
     def _calculate_ms_and_mpd(self):
@@ -255,67 +295,91 @@ class SOM(object):
         max_s = max(self.codebook.mapsize[0], self.codebook.mapsize[1])
 
         if mn == 1:
-            mpd = float(self.codebook.nnodes*10)/float(self._dlen)
+            mpd = float(self.codebook.nnodes * 10) / float(self._dlen)
         else:
-            mpd = float(self.codebook.nnodes)/float(self._dlen)
-        ms = max_s/2.0 if mn == 1 else max_s
+            mpd = float(self.codebook.nnodes) / float(self._dlen)
+        ms = max_s / 2.0 if mn == 1 else max_s
 
         return ms, mpd
 
-    def rough_train(self, njob=1, shared_memory=False, trainlen=None, radiusin=None, radiusfin=None,trainlen_factor=1,maxtrainlen=np.Inf):
+    def rough_train(
+        self,
+        njob=1,
+        shared_memory=False,
+        trainlen=None,
+        radiusin=None,
+        radiusfin=None,
+        trainlen_factor=1,
+        maxtrainlen=np.Inf,
+    ):
         logging.info(" Rough training...")
 
         ms, mpd = self._calculate_ms_and_mpd()
-        #lbugnon: add maxtrainlen
-        trainlen = min(int(np.ceil(30*mpd)),maxtrainlen) if not trainlen else trainlen
-        #print("maxtrainlen %d",maxtrainlen)
-        #lbugnon: add trainlen_factor
-        trainlen=int(trainlen*trainlen_factor)
-        
-        if self.initialization == 'random':
-            radiusin = max(1, np.ceil(ms/3.)) if not radiusin else radiusin
-            radiusfin = max(1, radiusin/6.) if not radiusfin else radiusfin
+        # lbugnon: add maxtrainlen
+        trainlen = (
+            min(int(np.ceil(30 * mpd)), maxtrainlen) if not trainlen else trainlen
+        )
+        # print("maxtrainlen %d",maxtrainlen)
+        # lbugnon: add trainlen_factor
+        trainlen = int(trainlen * trainlen_factor)
 
-        elif self.initialization == 'pca':
-            radiusin = max(1, np.ceil(ms/8.)) if not radiusin else radiusin
-            radiusfin = max(1, radiusin/4.) if not radiusfin else radiusfin
+        if self.initialization == "random":
+            radiusin = max(1, np.ceil(ms / 3.0)) if not radiusin else radiusin
+            radiusfin = max(1, radiusin / 6.0) if not radiusfin else radiusfin
+
+        elif self.initialization == "pca":
+            radiusin = max(1, np.ceil(ms / 8.0)) if not radiusin else radiusin
+            radiusfin = max(1, radiusin / 4.0) if not radiusfin else radiusfin
 
         self._batchtrain(trainlen, radiusin, radiusfin, njob, shared_memory)
 
-    def finetune_train(self, njob=1, shared_memory=False, trainlen=None, radiusin=None, radiusfin=None,trainlen_factor=1,maxtrainlen=np.Inf):
+    def finetune_train(
+        self,
+        njob=1,
+        shared_memory=False,
+        trainlen=None,
+        radiusin=None,
+        radiusfin=None,
+        trainlen_factor=1,
+        maxtrainlen=np.Inf,
+    ):
         logging.info(" Finetune training...")
 
         ms, mpd = self._calculate_ms_and_mpd()
 
-        #lbugnon: add maxtrainlen
-        if self.initialization == 'random':
-            trainlen = min(int(np.ceil(50*mpd)),maxtrainlen) if not trainlen else trainlen
-            radiusin = max(1, ms/12.)  if not radiusin else radiusin # from radius fin in rough training
-            radiusfin = max(1, radiusin/25.) if not radiusfin else radiusfin
+        # lbugnon: add maxtrainlen
+        if self.initialization == "random":
+            trainlen = (
+                min(int(np.ceil(50 * mpd)), maxtrainlen) if not trainlen else trainlen
+            )
+            radiusin = (
+                max(1, ms / 12.0) if not radiusin else radiusin
+            )  # from radius fin in rough training
+            radiusfin = max(1, radiusin / 25.0) if not radiusfin else radiusfin
 
-        elif self.initialization == 'pca':
-            trainlen = min(int(np.ceil(40*mpd)),maxtrainlen) if not trainlen else trainlen
-            radiusin = max(1, np.ceil(ms/8.)/4) if not radiusin else radiusin
-            radiusfin = 1 if not radiusfin else radiusfin # max(1, ms/128)
+        elif self.initialization == "pca":
+            trainlen = (
+                min(int(np.ceil(40 * mpd)), maxtrainlen) if not trainlen else trainlen
+            )
+            radiusin = max(1, np.ceil(ms / 8.0) / 4) if not radiusin else radiusin
+            radiusfin = 1 if not radiusfin else radiusfin  # max(1, ms/128)
 
-        #print("maxtrainlen %d",maxtrainlen)
-        
-        #lbugnon: add trainlen_factor
-        trainlen=int(trainlen_factor*trainlen)
-        
-            
+        # print("maxtrainlen %d",maxtrainlen)
+
+        # lbugnon: add trainlen_factor
+        trainlen = int(trainlen_factor * trainlen)
+
         self._batchtrain(trainlen, radiusin, radiusfin, njob, shared_memory)
 
-    def _batchtrain(self, trainlen, radiusin, radiusfin, njob=1,
-                    shared_memory=False):
+    def _batchtrain(self, trainlen, radiusin, radiusfin, njob=1, shared_memory=False):
         radius = np.linspace(radiusin, radiusfin, trainlen)
 
         if shared_memory:
             data = self._data
             data_folder = tempfile.mkdtemp()
-            data_name = os.path.join(data_folder, 'data')
+            data_name = os.path.join(data_folder, "data")
             dump(data, data_name)
-            data = load(data_name, mmap_mode='r')
+            data = load(data_name, mmap_mode="r")
 
         else:
             data = self._data
@@ -326,32 +390,37 @@ class SOM(object):
         # for each data row in bmu finding.
         # Since it is a fixed value we can skip it during bmu finding for each
         # data point, but later we need it calculate quantification error
-        fixed_euclidean_x2 = np.einsum('ij,ij->i', data, data)
+        fixed_euclidean_x2 = np.einsum("ij,ij->i", data, data)
 
-        logging.info(" radius_ini: %f , radius_final: %f, trainlen: %d\n" %
-                     (radiusin, radiusfin, trainlen))
+        logging.info(
+            " radius_ini: %f , radius_final: %f, trainlen: %d\n"
+            % (radiusin, radiusfin, trainlen)
+        )
 
         for i in range(trainlen):
             t1 = time()
             neighborhood = self.neighborhood.calculate(
-                self._distance_matrix, radius[i], self.codebook.nnodes)
+                self._distance_matrix, radius[i], self.codebook.nnodes
+            )
             bmu = self.find_bmu(data, njb=njob)
-            self.codebook.matrix = self.update_codebook_voronoi(data, bmu,
-                                                                neighborhood)
+            self.codebook.matrix = self.update_codebook_voronoi(data, bmu, neighborhood)
 
-            #lbugnon: ojo! aca el bmy[1] a veces da negativo, y despues de eso se rompe...hay algo raro ahi
-            qerror = (i + 1, round(time() - t1, 3),
-                      np.mean(np.sqrt(bmu[1] + fixed_euclidean_x2))) #lbugnon: ojo aca me tiró un warning, revisar (commit sinc: 965666d3d4d93bcf48e8cef6ea2c41a018c1cb83 )
-            #lbugnon
-            #ipdb.set_trace()
+            # lbugnon: ojo! aca el bmy[1] a veces da negativo, y despues de eso se rompe...hay algo raro ahi
+            qerror = (
+                i + 1,
+                round(time() - t1, 3),
+                np.mean(np.sqrt(bmu[1] + fixed_euclidean_x2)),
+            )  # lbugnon: ojo aca me tiró un warning, revisar (commit sinc: 965666d3d4d93bcf48e8cef6ea2c41a018c1cb83 )
+            # lbugnon
+            # ipdb.set_trace()
             #
             logging.info(
-                " epoch: %d ---> elapsed time:  %f, quantization error: %f\n" %
-                qerror)
+                " epoch: %d ---> elapsed time:  %f, quantization error: %f\n" % qerror
+            )
             if np.any(np.isnan(qerror)):
                 logging.info("nan quantization error, exit train\n")
-                
-                #sys.exit("quantization error=nan, exit train")
+
+                # sys.exit("quantization error=nan, exit train")
 
         bmu = self.find_bmu(data, njb=njob)
         bmu[1] = np.sqrt(bmu[1] + fixed_euclidean_x2)
@@ -370,7 +439,7 @@ class SOM(object):
         :returns: the best matching unit for each input
         """
         dlen = input_matrix.shape[0]
-        y2 = np.einsum('ij,ij->i', self.codebook.matrix, self.codebook.matrix)
+        y2 = np.einsum("ij,ij->i", self.codebook.matrix, self.codebook.matrix)
         if njb == -1:
             njb = cpu_count()
 
@@ -381,10 +450,12 @@ class SOM(object):
             return part * dlen // njb
 
         def col_chunk(part):
-            return min((part+1)*dlen // njb, dlen)
+            return min((part + 1) * dlen // njb, dlen)
 
-        chunks = [input_matrix[row_chunk(i):col_chunk(i)] for i in range(njb)]
-        b = pool.map(lambda chk: chunk_bmu_finder(chk, self.codebook.matrix, y2, nth=nth), chunks)
+        chunks = [input_matrix[row_chunk(i) : col_chunk(i)] for i in range(njb)]
+        b = pool.map(
+            lambda chk: chunk_bmu_finder(chk, self.codebook.matrix, y2, nth=nth), chunks
+        )
         pool.close()
         pool.join()
         bmu = np.asarray(list(itertools.chain(*b))).T
@@ -415,8 +486,7 @@ class SOM(object):
         row = bmu[0].astype(int)
         col = np.arange(self._dlen)
         val = np.tile(1, self._dlen)
-        P = csr_matrix((val, (row, col)), shape=(self.codebook.nnodes,
-                       self._dlen))
+        P = csr_matrix((val, (row, col)), shape=(self.codebook.nnodes, self._dlen))
         S = P.dot(training_data)
 
         # neighborhood has nnodes*nnodes and S has nnodes*dim
@@ -444,7 +514,7 @@ class SOM(object):
 
         return clf.predict(data)
 
-    def predict_by(self, data, target, k=5, wt='distance'):
+    def predict_by(self, data, target, k=5, wt="distance"):
         # here it is assumed that target is the last column in the codebook
         # and data has dim-1 columns
         dim = self.codebook.matrix.shape[1]
@@ -466,15 +536,16 @@ class SOM(object):
             data = self._normalizer.normalize_by(self.data_raw, data)
             data = data[:, indX]
 
-        elif dimdata == dim-1:
+        elif dimdata == dim - 1:
             data = self._normalizer.normalize_by(self.data_raw[:, indX], data)
 
         predicted_values = clf.predict(data)
         predicted_values = self._normalizer.denormalize_by(
-            self.data_raw[:, target], predicted_values)
+            self.data_raw[:, target], predicted_values
+        )
         return predicted_values
 
-    def predict(self, x_test, k=5, wt='distance'):
+    def predict(self, x_test, k=5, wt="distance"):
         """
         Similar to SKlearn we assume that we have X_tr, Y_tr and X_test. Here
         it is assumed that target is the last column in the codebook and data
@@ -486,7 +557,7 @@ class SOM(object):
             (more detail in KNeighborsRegressor docs)
         :returns: predicted values for the input data
         """
-        target = self.data_raw.shape[1]-1
+        target = self.data_raw.shape[1] - 1
         x_train = self.codebook.matrix[:, :target]
         y_train = self.codebook.matrix[:, target]
         clf = neighbors.KNeighborsRegressor(k, weights=wt)
@@ -495,15 +566,16 @@ class SOM(object):
         # The codebook values are all normalized
         # we can normalize the input data based on mean and std of
         # original data
-        x_test = self._normalizer.normalize_by(
-            self.data_raw[:, :target], x_test)
+        x_test = self._normalizer.normalize_by(self.data_raw[:, :target], x_test)
         predicted_values = clf.predict(x_test)
 
         return self._normalizer.denormalize_by(
-            self.data_raw[:, target], predicted_values)
+            self.data_raw[:, target], predicted_values
+        )
 
     def find_k_nodes(self, data, k=5):
         from sklearn.neighbors import NearestNeighbors
+
         # we find the k most similar nodes to the input vector
         neighbor = NearestNeighbors(n_neighbors=k)
         neighbor.fit(self.codebook.matrix)
@@ -511,8 +583,7 @@ class SOM(object):
         # The codebook values are all normalized
         # we can normalize the input data based on mean and std of
         # original data
-        return neighbor.kneighbors(
-            self._normalizer.normalize_by(self.data_raw, data))
+        return neighbor.kneighbors(self._normalizer.normalize_by(self.data_raw, data))
 
     def bmu_ind_to_xy(self, bmu_ind):
         """
@@ -529,7 +600,7 @@ class SOM(object):
         # bmu should be an integer between 0 to no_nodes
         out = np.zeros((bmu_ind.shape[0], 3))
         out[:, 2] = bmu_ind
-        out[:, 0] = rows-1-bmu_ind / cols
+        out[:, 0] = rows - 1 - bmu_ind / cols
         out[:, 0] = bmu_ind / cols
         out[:, 1] = bmu_ind % cols
 
@@ -537,9 +608,12 @@ class SOM(object):
 
     def cluster(self, n_clusters=8, random_state=0):
         import sklearn.cluster as clust
-        cl_labels = clust.KMeans(n_clusters=n_clusters, random_state=random_state).fit_predict(
-            self._normalizer.denormalize_by(self.data_raw,
-                                            self.codebook.matrix))
+
+        cl_labels = clust.KMeans(
+            n_clusters=n_clusters, random_state=random_state
+        ).fit_predict(
+            self._normalizer.denormalize_by(self.data_raw, self.codebook.matrix)
+        )
         self.cluster_labels = cl_labels
         return cl_labels
 
@@ -559,7 +633,7 @@ class SOM(object):
         x = self.codebook.matrix[:, indx]
         y = self.codebook.matrix[:, target]
 
-        clf = neighbors.KNeighborsRegressor(k, weights='distance')
+        clf = neighbors.KNeighborsRegressor(k, weights="distance")
         clf.fit(x, y)
 
         # The codebook values are all normalized
@@ -572,14 +646,13 @@ class SOM(object):
             data = self._normalizer.normalize_by(self.data_raw, data)
             data = data[:, indx]
 
-        elif dimdata == dim-1:
+        elif dimdata == dim - 1:
             data = self._normalizer.normalize_by(self.data_raw[:, indx], data)
 
-        weights, ind = clf.kneighbors(data, n_neighbors=k,
-                                      return_distance=True)
-        weights = 1./weights
+        weights, ind = clf.kneighbors(data, n_neighbors=k, return_distance=True)
+        weights = 1.0 / weights
         sum_ = np.sum(weights, axis=1)
-        weights = weights/sum_[:, np.newaxis]
+        weights = weights / sum_[:, np.newaxis]
         labels = np.sign(self.codebook.matrix[ind, target])
         labels[labels >= 0] = 1
 
@@ -597,12 +670,11 @@ class SOM(object):
 
         return np.concatenate((pos_prob, neg_prob), axis=1)
 
-    def node_activation(self, data, target=None, wt='distance'):
+    def node_activation(self, data, target=None, wt="distance"):
         weights, ind = None, None
 
         if not target:
-            clf = neighbors.KNeighborsClassifier(
-                n_neighbors=self.codebook.nnodes)
+            clf = neighbors.KNeighborsClassifier(n_neighbors=self.codebook.nnodes)
             labels = np.arange(0, self.codebook.matrix.shape[0])
             clf.fit(self.codebook.matrix, labels)
 
@@ -613,7 +685,7 @@ class SOM(object):
             weights, ind = clf.kneighbors(data)
 
             # Softmax function
-            weights = 1./weights
+            weights = 1.0 / weights
 
         return weights, ind
 
@@ -621,14 +693,28 @@ class SOM(object):
         bmus1 = self.find_bmu(self.data_raw, njb=1, nth=1)
         bmus2 = self.find_bmu(self.data_raw, njb=1, nth=2)
         topographic_error = None
-        if self.codebook.lattice=="rect":
-            bmus_gap = np.abs((self.bmu_ind_to_xy(np.array(bmus1[0]))[:, 0:2] - self.bmu_ind_to_xy(np.array(bmus2[0]))[:, 0:2]).sum(axis=1))
+        if self.codebook.lattice == "rect":
+            bmus_gap = np.abs(
+                (
+                    self.bmu_ind_to_xy(np.array(bmus1[0]))[:, 0:2]
+                    - self.bmu_ind_to_xy(np.array(bmus2[0]))[:, 0:2]
+                ).sum(axis=1)
+            )
             topographic_error = np.mean(bmus_gap != 1)
-        elif self.codebook.lattice=="hexa":
-            dist_matrix_1 = self.codebook.lattice_distances[bmus1[0].astype(int)].reshape(len(bmus1[0]), -1)
-            topographic_error = (np.array(
-                [distances[bmu2] for bmu2, distances in zip(bmus2[0].astype(int), dist_matrix_1)]) > 2).mean()
-        return(topographic_error)
+        elif self.codebook.lattice == "hexa":
+            dist_matrix_1 = self.codebook.lattice_distances[
+                bmus1[0].astype(int)
+            ].reshape(len(bmus1[0]), -1)
+            topographic_error = (
+                np.array(
+                    [
+                        distances[bmu2]
+                        for bmu2, distances in zip(bmus2[0].astype(int), dist_matrix_1)
+                    ]
+                )
+                > 2
+            ).mean()
+        return topographic_error
 
     def calculate_quantization_error(self):
         neuron_values = self.codebook.matrix[self.find_bmu(self._data)[0].astype(int)]
@@ -644,7 +730,7 @@ class SOM(object):
         D = self.data_raw.copy()
         dlen = D.shape[0]
         dim = D.shape[1]
-        munits = np.ceil(5 * (dlen ** 0.5))
+        munits = np.ceil(5 * (dlen**0.5))
         A = np.ndarray(shape=[dim, dim]) + np.Inf
 
         for i in range(dim):
@@ -667,7 +753,7 @@ class SOM(object):
         if lattice == "rect":
             size1 = min(munits, round(np.sqrt(munits / ratio)))
         else:
-            size1 = min(munits, round(np.sqrt(munits / ratio*np.sqrt(0.75))))
+            size1 = min(munits, round(np.sqrt(munits / ratio * np.sqrt(0.75))))
 
         size2 = round(munits / size1)
 
@@ -700,19 +786,16 @@ def _chunk_based_bmu_find(input_matrix, codebook, y2, nth=1):
     blen = min(50, dlen)
     i0 = 0
 
-    while i0+1 <= dlen:
+    while i0 + 1 <= dlen:
         low = i0
-        high = min(dlen, i0+blen)
-        i0 = i0+blen
-        ddata = input_matrix[low:high+1]
+        high = min(dlen, i0 + blen)
+        i0 = i0 + blen
+        ddata = input_matrix[low : high + 1]
         d = np.dot(codebook, ddata.T)
         d *= -2
         d += y2.reshape(nnodes, 1)
-        bmu[low:high+1, 0] = np.argpartition(d, nth, axis=0)[nth-1]
-        bmu[low:high+1, 1] = np.partition(d, nth, axis=0)[nth-1]
+        bmu[low : high + 1, 0] = np.argpartition(d, nth, axis=0)[nth - 1]
+        bmu[low : high + 1, 1] = np.partition(d, nth, axis=0)[nth - 1]
         del ddata
 
     return bmu
-
-
-

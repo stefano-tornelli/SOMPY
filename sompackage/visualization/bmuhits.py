@@ -7,7 +7,7 @@ from itertools import chain
 
 from .mapview import MapView
 
-from sompy.visualization.plot_tools import plot_hex_map
+from sompackage.visualization.plot_tools import plot_hex_map
 
 
 
