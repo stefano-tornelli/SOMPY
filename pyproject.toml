@@ -9,8 +9,8 @@ requires = ["setuptools>=61.0",
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "SOMPY"
-version = "1.1.1"
+name = "sompackage"
+version = "1.0.0"
 authors = [
   { name="Stefano Tornelli", email="stefano.tornelli@outlook.com" },
 ]
