@@ -20,5 +20,5 @@ dictConfig(
 )
 
 
-from .sompackage import SOMFactory
+from .sompy import SOMFactory
 from .visualization import *

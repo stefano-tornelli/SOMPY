@@ -1,7 +1,7 @@
-from matplotlib import colors
+# from matplotlib import colors
 import matplotlib
 
-from sompackage.visualization.plot_tools import plot_hex_map
+from sompy.visualization.plot_tools import plot_hex_map
 from .view import MatplotView
 from matplotlib import pyplot as plt
 import numpy as np
@@ -13,9 +13,9 @@ class MapView(MatplotView):
 
         # add this to avoid error when normalization is not used
         if som._normalizer:
-            codebook = som._normalizer.denormalize_by(som.data_raw, som.codebook.matrix)
+            _ = som._normalizer.denormalize_by(som.data_raw, som.codebook.matrix)
         else:
-            codebook = som.codebook.matrix
+            _ = som.codebook.matrix
 
         indtoshow, sV, sH = None, None, None
 
@@ -28,7 +28,7 @@ class MapView(MatplotView):
             indtoshow = np.arange(0, dim).T
             sH, sV = 16, 16 * ratio_fig * ratio_hitmap
 
-        elif type(which_dim) == int:
+        elif which_dim.isinstance(int):
             dim = 1
             msz_row, msz_col = som.codebook.mapsize
             ratio_hitmap = msz_row / float(msz_col)
@@ -36,8 +36,8 @@ class MapView(MatplotView):
             indtoshow[0] = int(which_dim)
             sH, sV = 16, 16 * ratio_hitmap
 
-        elif type(which_dim) == list:
-            max_dim = codebook.shape[1]
+        elif which_dim.isinstance(list):
+            # max_dim = codebook.shape[1]
             dim = len(which_dim)
             row_sz = np.ceil(float(dim) / col_sz)
             msz_row, msz_col = som.codebook.mapsize
@@ -88,9 +88,9 @@ class View2D(MapView):
 
         if which_dim == "all":
             names = som._component_names[0]
-        elif type(which_dim) == int:
+        elif which_dim.isinstance(int):
             names = [som._component_names[0][which_dim]]
-        elif type(which_dim) == list:
+        elif which_dim.isinstance(list):
             names = som._component_names[0][which_dim]
 
         if som.codebook.lattice == "rect":
@@ -99,29 +99,13 @@ class View2D(MapView):
                 ax = plt.subplot(no_row_in_plot, no_col_in_plot, axis_num)
                 ind = int(indtoshow[axis_num - 1])
 
-                min_color_scale = np.mean(codebook[:, ind].flatten()) - 1 * np.std(
-                    codebook[:, ind].flatten()
-                )
-                max_color_scale = np.mean(codebook[:, ind].flatten()) + 1 * np.std(
-                    codebook[:, ind].flatten()
-                )
-                min_color_scale = (
-                    min_color_scale
-                    if min_color_scale >= min(codebook[:, ind].flatten())
-                    else min(codebook[:, ind].flatten())
-                )
-                max_color_scale = (
-                    max_color_scale
-                    if max_color_scale <= max(codebook[:, ind].flatten())
-                    else max(codebook[:, ind].flatten())
-                )
-                norm = matplotlib.colors.Normalize(
-                    vmin=min_color_scale, vmax=max_color_scale, clip=True
-                )
+                min_color_scale = np.mean(codebook[:, ind].flatten()) - 1 * np.std(codebook[:, ind].flatten())
+                max_color_scale = np.mean(codebook[:, ind].flatten()) + 1 * np.std(codebook[:, ind].flatten())
+                min_color_scale = min_color_scale if min_color_scale >= min(codebook[:, ind].flatten()) else min(codebook[:, ind].flatten())
+                max_color_scale = max_color_scale if max_color_scale <= max(codebook[:, ind].flatten()) else max(codebook[:, ind].flatten())
+                norm = matplotlib.colors.Normalize(vmin=min_color_scale, vmax=max_color_scale, clip=True)
 
-                mp = codebook[:, ind].reshape(
-                    som.codebook.mapsize[0], som.codebook.mapsize[1]
-                )
+                mp = codebook[:, ind].reshape(som.codebook.mapsize[0], som.codebook.mapsize[1])
                 pl = plt.pcolor(mp[::-1], norm=norm)
                 plt.axis([0, som.codebook.mapsize[1], 0, som.codebook.mapsize[0]])
                 plt.title(names[axis_num - 1])
@@ -130,9 +114,7 @@ class View2D(MapView):
                 plt.colorbar(pl)
         elif som.codebook.lattice == "hexa":
             plot_hex_map(
-                codebook.reshape(
-                    som.codebook.mapsize + [som.codebook.matrix.shape[-1]]
-                ),
+                codebook.reshape(som.codebook.mapsize + [som.codebook.matrix.shape[-1]]),
                 titles=names,
                 shape=[no_row_in_plot, no_col_in_plot],
                 colormap=cmap,
@@ -186,7 +168,7 @@ class View2DPacked(MapView):
         if what == "cluster":
             try:
                 codebook = getattr(som, "cluster_labels")
-            except:
+            except Exception:
                 codebook = som.cluster()
 
             h = 0.2

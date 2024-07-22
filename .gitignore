@@ -6,6 +6,9 @@ __pycache__/
 # .pypirc file
 *.pypirc
 
+# .flake8 file
+*.flake8
+
 # C extensions
 *.so
 

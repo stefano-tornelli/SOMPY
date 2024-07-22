@@ -2,8 +2,7 @@ from matplotlib import pyplot as plt
 
 
 class View(object):
-    def __init__(self, width, height, title, show_axis=True, packed=True,
-                 text_size=2.8, show_text=True, col_size=6, *args, **kwargs):
+    def __init__(self, width, height, title, show_axis=True, packed=True, text_size=2.8, show_text=True, col_size=6, *args, **kwargs):
         self.width = width
         self.height = height
         self.title = title
@@ -25,11 +24,8 @@ class View(object):
 
 class MatplotView(View):
 
-    def __init__(self, width, height, title, show_axis=True, packed=True,
-                 text_size=2.8, show_text=True, col_size=6, *args, **kwargs):
-        super(MatplotView, self).__init__(width, height, title, show_axis,
-                                          packed, text_size, show_text,
-                                          col_size, *args, **kwargs)
+    def __init__(self, width, height, title, show_axis=True, packed=True, text_size=2.8, show_text=True, col_size=6, *args, **kwargs):
+        super(MatplotView, self).__init__(width, height, title, show_axis, packed, text_size, show_text, col_size, *args, **kwargs)
         self._fig = None
 
     def __del__(self):
@@ -42,14 +38,13 @@ class MatplotView(View):
     def prepare(self, *args, **kwargs):
         self._close_fig()
         self._fig = plt.figure(figsize=(self.width, self.height))
-        self._fig.patch.set_facecolor('white')
+        self._fig.patch.set_facecolor("white")
         plt.title(self.title)
-        plt.axis('off')
-        plt.rc('font', **{'size': self.text_size})
+        plt.axis("off")
+        plt.rc("font", **{"size": self.text_size})
 
-    def save(self, filename, transparent=False, bbox_inches='tight', dpi=400):
-        self._fig.savefig(filename, transparent=transparent, dpi=dpi,
-                          bbox_inches=bbox_inches)
+    def save(self, filename, transparent=False, bbox_inches="tight", dpi=400):
+        self._fig.savefig(filename, transparent=transparent, dpi=dpi, bbox_inches=bbox_inches)
 
     def show(self, *args, **kwrags):
         raise NotImplementedError()

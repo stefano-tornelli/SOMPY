@@ -20,8 +20,11 @@ from multiprocessing.dummy import Pool
 from multiprocessing import cpu_count
 from scipy.sparse import csr_matrix
 from sklearn import neighbors
-from joblib import Parallel, delayed, load, dump
-import sys
+
+# from joblib import Parallel, delayed,
+from joblib import load, dump
+
+# import sys
 
 from .decorators import timeit
 from .codebook import Codebook
@@ -154,11 +157,7 @@ class SOM(object):
         mapsize = self.calculate_map_size(lattice) if not mapsize else mapsize
         self.codebook = Codebook(mapsize, lattice)
         self.training = training
-        self._component_names = (
-            self.build_component_names()
-            if component_names is None
-            else [component_names]
-        )
+        self._component_names = self.build_component_names() if component_names is None else [component_names]
         self._distance_matrix = self.calculate_map_dist()
 
     @property
@@ -170,10 +169,7 @@ class SOM(object):
         if self._dim == len(compnames):
             self._component_names = np.asarray(compnames)[np.newaxis, :]
         else:
-            raise ComponentNamesError(
-                "Component names should have the same "
-                "size as the data dimension/features"
-            )
+            raise ComponentNamesError("Component names should have the same " "size as the data dimension/features")
 
     def build_component_names(self):
         cc = ["Variable-" + str(i + 1) for i in range(0, self._dim)]
@@ -239,9 +235,7 @@ class SOM(object):
         :param verbose: verbosity, could be 'debug', 'info' or None
         :param train_len_factor: Factor that multiply default training lenghts (similar to "training" parameter in the matlab version). (lbugnon)
         """
-        logging.root.setLevel(
-            getattr(logging, verbose.upper()) if verbose else logging.ERROR
-        )
+        logging.root.setLevel(getattr(logging, verbose.upper()) if verbose else logging.ERROR)
 
         logging.info(" Training...")
         logging.debug(
@@ -316,9 +310,7 @@ class SOM(object):
 
         ms, mpd = self._calculate_ms_and_mpd()
         # lbugnon: add maxtrainlen
-        trainlen = (
-            min(int(np.ceil(30 * mpd)), maxtrainlen) if not trainlen else trainlen
-        )
+        trainlen = min(int(np.ceil(30 * mpd)), maxtrainlen) if not trainlen else trainlen
         # print("maxtrainlen %d",maxtrainlen)
         # lbugnon: add trainlen_factor
         trainlen = int(trainlen * trainlen_factor)
@@ -349,18 +341,12 @@ class SOM(object):
 
         # lbugnon: add maxtrainlen
         if self.initialization == "random":
-            trainlen = (
-                min(int(np.ceil(50 * mpd)), maxtrainlen) if not trainlen else trainlen
-            )
-            radiusin = (
-                max(1, ms / 12.0) if not radiusin else radiusin
-            )  # from radius fin in rough training
+            trainlen = min(int(np.ceil(50 * mpd)), maxtrainlen) if not trainlen else trainlen
+            radiusin = max(1, ms / 12.0) if not radiusin else radiusin  # from radius fin in rough training
             radiusfin = max(1, radiusin / 25.0) if not radiusfin else radiusfin
 
         elif self.initialization == "pca":
-            trainlen = (
-                min(int(np.ceil(40 * mpd)), maxtrainlen) if not trainlen else trainlen
-            )
+            trainlen = min(int(np.ceil(40 * mpd)), maxtrainlen) if not trainlen else trainlen
             radiusin = max(1, np.ceil(ms / 8.0) / 4) if not radiusin else radiusin
             radiusfin = 1 if not radiusfin else radiusfin  # max(1, ms/128)
 
@@ -392,16 +378,11 @@ class SOM(object):
         # data point, but later we need it calculate quantification error
         fixed_euclidean_x2 = np.einsum("ij,ij->i", data, data)
 
-        logging.info(
-            " radius_ini: %f , radius_final: %f, trainlen: %d\n"
-            % (radiusin, radiusfin, trainlen)
-        )
+        logging.info(" radius_ini: %f , radius_final: %f, trainlen: %d\n" % (radiusin, radiusfin, trainlen))
 
         for i in range(trainlen):
             t1 = time()
-            neighborhood = self.neighborhood.calculate(
-                self._distance_matrix, radius[i], self.codebook.nnodes
-            )
+            neighborhood = self.neighborhood.calculate(self._distance_matrix, radius[i], self.codebook.nnodes)
             bmu = self.find_bmu(data, njb=njob)
             self.codebook.matrix = self.update_codebook_voronoi(data, bmu, neighborhood)
 
@@ -414,9 +395,7 @@ class SOM(object):
             # lbugnon
             # ipdb.set_trace()
             #
-            logging.info(
-                " epoch: %d ---> elapsed time:  %f, quantization error: %f\n" % qerror
-            )
+            logging.info(" epoch: %d ---> elapsed time:  %f, quantization error: %f\n" % qerror)
             if np.any(np.isnan(qerror)):
                 logging.info("nan quantization error, exit train\n")
 
@@ -453,9 +432,7 @@ class SOM(object):
             return min((part + 1) * dlen // njb, dlen)
 
         chunks = [input_matrix[row_chunk(i) : col_chunk(i)] for i in range(njb)]
-        b = pool.map(
-            lambda chk: chunk_bmu_finder(chk, self.codebook.matrix, y2, nth=nth), chunks
-        )
+        b = pool.map(lambda chk: chunk_bmu_finder(chk, self.codebook.matrix, y2, nth=nth), chunks)
         pool.close()
         pool.join()
         bmu = np.asarray(list(itertools.chain(*b))).T
@@ -540,9 +517,7 @@ class SOM(object):
             data = self._normalizer.normalize_by(self.data_raw[:, indX], data)
 
         predicted_values = clf.predict(data)
-        predicted_values = self._normalizer.denormalize_by(
-            self.data_raw[:, target], predicted_values
-        )
+        predicted_values = self._normalizer.denormalize_by(self.data_raw[:, target], predicted_values)
         return predicted_values
 
     def predict(self, x_test, k=5, wt="distance"):
@@ -569,9 +544,7 @@ class SOM(object):
         x_test = self._normalizer.normalize_by(self.data_raw[:, :target], x_test)
         predicted_values = clf.predict(x_test)
 
-        return self._normalizer.denormalize_by(
-            self.data_raw[:, target], predicted_values
-        )
+        return self._normalizer.denormalize_by(self.data_raw[:, target], predicted_values)
 
     def find_k_nodes(self, data, k=5):
         from sklearn.neighbors import NearestNeighbors
@@ -609,11 +582,7 @@ class SOM(object):
     def cluster(self, n_clusters=8, random_state=0):
         import sklearn.cluster as clust
 
-        cl_labels = clust.KMeans(
-            n_clusters=n_clusters, random_state=random_state
-        ).fit_predict(
-            self._normalizer.denormalize_by(self.data_raw, self.codebook.matrix)
-        )
+        cl_labels = clust.KMeans(n_clusters=n_clusters, random_state=random_state).fit_predict(self._normalizer.denormalize_by(self.data_raw, self.codebook.matrix))
         self.cluster_labels = cl_labels
         return cl_labels
 
@@ -694,26 +663,11 @@ class SOM(object):
         bmus2 = self.find_bmu(self.data_raw, njb=1, nth=2)
         topographic_error = None
         if self.codebook.lattice == "rect":
-            bmus_gap = np.abs(
-                (
-                    self.bmu_ind_to_xy(np.array(bmus1[0]))[:, 0:2]
-                    - self.bmu_ind_to_xy(np.array(bmus2[0]))[:, 0:2]
-                ).sum(axis=1)
-            )
+            bmus_gap = np.abs((self.bmu_ind_to_xy(np.array(bmus1[0]))[:, 0:2] - self.bmu_ind_to_xy(np.array(bmus2[0]))[:, 0:2]).sum(axis=1))
             topographic_error = np.mean(bmus_gap != 1)
         elif self.codebook.lattice == "hexa":
-            dist_matrix_1 = self.codebook.lattice_distances[
-                bmus1[0].astype(int)
-            ].reshape(len(bmus1[0]), -1)
-            topographic_error = (
-                np.array(
-                    [
-                        distances[bmu2]
-                        for bmu2, distances in zip(bmus2[0].astype(int), dist_matrix_1)
-                    ]
-                )
-                > 2
-            ).mean()
+            dist_matrix_1 = self.codebook.lattice_distances[bmus1[0].astype(int)].reshape(len(bmus1[0]), -1)
+            topographic_error = (np.array([distances[bmu2] for bmu2, distances in zip(bmus2[0].astype(int), dist_matrix_1)]) > 2).mean()
         return topographic_error
 
     def calculate_quantization_error(self):
@@ -743,7 +697,7 @@ class SOM(object):
                 A[i, j] = sum(c) / len(c)
                 A[j, i] = A[i, j]
 
-        VS = np.linalg.eig(A)
+        # VS = np.linalg.eig(A)
         eigval = sorted(np.linalg.eig(A)[0])
         if eigval[-1] == 0 or eigval[-2] * munits < eigval[-1]:
             ratio = 1

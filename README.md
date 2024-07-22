@@ -4,9 +4,10 @@ SOMPY
 This repository was forked from the original repository at https://github.com/sevamoo/SOMPY to modify it in order to make the package installable via pip.
 
 Changes
-1. Changed package name to "sompackage" to avoid conflict with already existing packages on PyPI
+1. Changed package name to "sompy-package" to avoid conflict with already existing "sompy" package on PyPI
 2. Refactored package replacing deprecated setup.py with pyproject.toml
 3. Updated dependencies to include scikit-image
+4. General code cleanup and formatting
 
 WIP:
 1. Upload package to PyPI
