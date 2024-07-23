@@ -28,7 +28,7 @@ class MapView(MatplotView):
             indtoshow = np.arange(0, dim).T
             sH, sV = 16, 16 * ratio_fig * ratio_hitmap
 
-        elif which_dim.isinstance(int):
+        elif isinstance(which_dim, int):
             dim = 1
             msz_row, msz_col = som.codebook.mapsize
             ratio_hitmap = msz_row / float(msz_col)
@@ -36,7 +36,7 @@ class MapView(MatplotView):
             indtoshow[0] = int(which_dim)
             sH, sV = 16, 16 * ratio_hitmap
 
-        elif which_dim.isinstance(list):
+        elif isinstance(which_dim, list):
             # max_dim = codebook.shape[1]
             dim = len(which_dim)
             row_sz = np.ceil(float(dim) / col_sz)
@@ -88,9 +88,9 @@ class View2D(MapView):
 
         if which_dim == "all":
             names = som._component_names[0]
-        elif which_dim.isinstance(int):
+        elif isinstance(which_dim, int):
             names = [som._component_names[0][which_dim]]
-        elif which_dim.isinstance(list):
+        elif isinstance(which_dim, list):
             names = som._component_names[0][which_dim]
 
         if som.codebook.lattice == "rect":
