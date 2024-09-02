@@ -3,18 +3,32 @@ SOMPY
 
 This repository was forked from the original repository at https://github.com/sevamoo/SOMPY to modify it in order to make the package installable via pip.
 
-Changes
-1. Changed package name to "sompy-package" to avoid conflict with already existing "sompy" package on PyPI
-2. Refactored package replacing deprecated setup.py with pyproject.toml
-3. Updated dependencies to include scikit-image
+### Changes
+1. Changed package name to ```sompy-package``` to avoid conflict with already existing ```sompy``` package on PyPI
+2. Refactored package replacing ```setup.py``` with ```pyproject.toml```
+3. Updated dependencies to include ```scikit-image```
 4. General code cleanup and formatting
+5. Uploaded package to PyPI
 
-WIP:
-1. Upload package to PyPI
+### Installation
+To install the package using ```pip``` you can simply do
 
-All of the following is the original README file from the creator of the repo.
+``` pip install sompy-package ```
+
+### Usage
+You can use the package and its modules as usual:
+```
+import sompy
+from sompy.sompy import SOMFactory
+from sompy.visualization.mapview import View2D
+...
+``` 
+
+No changes to the code should be necessary.
 
 -----
+
+All of the following is the original README file from the creator of the repo.
 
 ## Original README
 
