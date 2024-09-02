@@ -13,7 +13,9 @@ This repository was forked from the original repository at https://github.com/se
 ### Installation
 To install the package using ```pip``` you can simply do
 
-``` pip install sompy-package ```
+``` 
+pip install sompy-package 
+```
 
 ### Usage
 You can use the package and its modules as usual:
